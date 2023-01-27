@@ -96,3 +96,11 @@ jobs:
           tags: |
             adrielcodeco/conformance-suite:latest
             adrielcodeco/conformance-suite:${{ steps.date.outputs.date }}
+
+      - run: npm version patch
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -4,7 +4,10 @@
   "bin": {
     "openidtest": "cli.js"
   },
-  "repository": "https://github.com/adrielcodeco/openid-certification-automation.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adrielcodeco/openid-certification-automation.git"
+  },
   "author": "Codeco <adrielcodeco@hotmail.com>",
   "license": "MIT",
   "scripts": {
