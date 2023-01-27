@@ -97,6 +97,8 @@ jobs:
             adrielcodeco/conformance-suite:latest
             adrielcodeco/conformance-suite:${{ steps.date.outputs.date }}
 
+      - run: npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+
       - run: npm version patch
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
