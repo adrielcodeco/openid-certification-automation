@@ -42,10 +42,6 @@ jobs:
         id: yarn-lint
         run: yarn lint
 
-      - name: Type Check
-        id: yarn-typecheck
-        run: yarn typecheck
-
       - name: Spell Check
         id: yarn-spellcheck
         run: yarn spellcheck

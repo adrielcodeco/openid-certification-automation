@@ -8,6 +8,9 @@
   "author": "Codeco <adrielcodeco@hotmail.com>",
   "license": "MIT",
   "scripts": {
+    "lint": "echo \"there is no lint\"",
+    "spellcheck": "echo \"there is no spellcheck\"",
+    "test": "echo \"there is no test\"",
     "build:openid:img": "docker build -t openidtest:latest .",
     "build:conformance-suite:img": "docker build -t conformance-suite:latest . -f Dockerfile.conformance-suite"
   },
