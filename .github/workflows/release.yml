@@ -86,14 +86,17 @@ jobs:
             adrielcodeco/openidtest:latest
             adrielcodeco/openidtest:${{ steps.date.outputs.date }}
 
-      - run: npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
-      - run: git config --global user.email "adrielcodeco@hotmail.com"
-      - run: git config --global user.name "codeco"
+      - name: Npm Config
+        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NODE_AUTH_TOKEN }}
 
-      - run: npm version patch
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Whoami
+        run: npm whoami
 
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: git user.name
+        run: git config --global user.name "adrielcodeco"
+
+      - name: Npm version
+        run: npm version patch
+
+      - name: Npm publish
+        run: npm publish
