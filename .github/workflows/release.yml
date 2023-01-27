@@ -14,6 +14,15 @@ jobs:
         with:
           persist-credentials: true
 
+      - name: Npm Config
+        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+
+      - name: Whoami
+        run: npm whoami
+
+      - name: git user.name
+        run: git config --global user.name "adrielcodeco"
+
       - name: Set up Node.js
         uses: actions/setup-node@master
         with:
@@ -85,15 +94,6 @@ jobs:
           tags: |
             adrielcodeco/openidtest:latest
             adrielcodeco/openidtest:${{ steps.date.outputs.date }}
-
-      - name: Npm Config
-        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NODE_AUTH_TOKEN }}
-
-      - name: Whoami
-        run: npm whoami
-
-      - name: git user.name
-        run: git config --global user.name "adrielcodeco"
 
       - name: Npm version
         run: npm version patch
