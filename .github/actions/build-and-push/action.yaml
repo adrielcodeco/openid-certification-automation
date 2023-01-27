@@ -1,0 +1,89 @@
+name: 'Build and push'
+description: 'Build docker image and push to repo'
+inputs:
+  registry:
+    description: 'steps.login-ecr.outputs.registry'
+    required: true
+  repository:
+    description: 'ecr repository name'
+    required: true
+  imgTag:
+    description: 'image tag'
+    required: true
+  platform:
+    description: 'image platform'
+    required: true
+    default: 'linux/amd64,linux/arm64'
+  adapter:
+    description: 'adapter'
+    required: true
+  sm:
+    description: 'sm'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Build and Push - ${{ inputs.platform }}
+      shell: bash
+      if: ${{ inputs.platform == 'linux/amd64,linux/arm64' && inputs.adapter == null }}
+      run: |
+        docker buildx build \
+          --push \
+          --build-arg SM=${{ inputs.sm }} \
+          --platform ${{ inputs.platform }} \
+          -t ${{ inputs.registry }}/${{ inputs.repository }}:${{ inputs.imgTag }} \
+          .
+    - name: Build and Push - linux/amd64
+      shell: bash
+      if: ${{ contains(inputs.platform, 'linux/amd64') && inputs.adapter == null }}
+      run: |
+        docker buildx build \
+          --push \
+          --build-arg SM=${{ inputs.sm }} \
+          --platform linux/amd64\
+          -t ${{ inputs.registry }}/${{ inputs.repository }}:${{ inputs.imgTag }}-amd64 \
+          .
+    - name: Build and Push - linux/arm64
+      shell: bash
+      if: ${{ contains(inputs.platform, 'linux/arm64') && inputs.adapter == null }}
+      run: |
+        docker buildx build \
+          --push \
+          --build-arg SM=${{ inputs.sm }} \
+          --platform linux/arm64 \
+          -t ${{ inputs.registry }}/${{ inputs.repository }}:${{ inputs.imgTag }}-arm64 \
+          .
+
+    - name: Build and Push - ${{ inputs.adapter }} - ${{ inputs.platform }}
+      shell: bash
+      if: ${{ inputs.platform == 'linux/amd64,linux/arm64' && inputs.adapter != null }}
+      run: |
+        docker buildx build \
+          --push \
+          --build-arg Adapter=${{ inputs.adapter }} \
+          --build-arg SM=${{ inputs.sm }} \
+          --platform ${{ inputs.platform }} \
+          -t ${{ inputs.registry }}/${{ inputs.repository }}:${{ inputs.imgTag }} \
+          .
+    - name: Build and Push - ${{ inputs.adapter }} - linux/amd64
+      shell: bash
+      if: ${{ contains(inputs.platform, 'linux/amd64') && inputs.adapter != null }}
+      run: |
+        docker buildx build \
+          --push \
+          --build-arg Adapter=${{ inputs.adapter }} \
+          --build-arg SM=${{ inputs.sm }} \
+          --platform linux/amd64\
+          -t ${{ inputs.registry }}/${{ inputs.repository }}:${{ inputs.imgTag }}-${{ inputs.adapter }}-amd64 \
+          .
+    - name: Build and Push - ${{ inputs.adapter }} - linux/arm64
+      shell: bash
+      if: ${{ contains(inputs.platform, 'linux/arm64') && inputs.adapter != null }}
+      run: |
+        docker buildx build \
+          --push \
+          --build-arg Adapter=${{ inputs.adapter }} \
+          --build-arg SM=${{ inputs.sm }} \
+          --platform linux/arm64 \
+          -t ${{ inputs.registry }}/${{ inputs.repository }}:${{ inputs.imgTag }}-${{ inputs.adapter }}-arm64 \
+          .

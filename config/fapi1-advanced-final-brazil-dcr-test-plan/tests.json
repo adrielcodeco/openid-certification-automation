@@ -1,0 +1,19 @@
+[
+  "fapi1-advanced-final-brazildcr-happy-flow",
+  "fapi1-advanced-final-brazildcr-happy-flow-variant",
+  "fapi1-advanced-final-brazildcr-happy-flow-variant-2",
+  "fapi1-advanced-final-brazildcr-client-delete",
+  "fapi1-advanced-final-brazildcr-invalid-registration-access-token",
+  "fapi1-advanced-final-brazil-dcr-invalid-software-statement-signature",
+  "fapi1-advanced-final-brazil-dcr-no-software-statement",
+  "fapi1-advanced-final-brazil-dcr-no-mtls",
+  "fapi1-advanced-final-brazil-dcr-bad-mtls",
+  "fapi1-advanced-final-brazildcr-update-client-config",
+  "fapi1-advanced-final-brazildcr-update-client-config-bad-jwks-uri",
+  "fapi1-advanced-final-brazildcr-update-client-config-invalid-jwks-by-value",
+  "fapi1-advanced-final-brazildcr-update-client-config-invalid-redirect-uri",
+  "fapi1-advanced-final-brazil-dcr-no-redirect-uri",
+  "fapi1-advanced-final-brazil-dcr-invalid-redirect-uri",
+  "fapi1-advanced-final-brazil-dcr-invalid-jwks-uri",
+  "fapi1-advanced-final-brazil-dcr-invalid-jwks-by-value"
+]
