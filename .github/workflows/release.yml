@@ -87,6 +87,8 @@ jobs:
             adrielcodeco/openidtest:${{ steps.date.outputs.date }}
 
       - run: npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+      - run: git config --global user.email "adrielcodeco@hotmail.com"
+      - run: git config --global user.name "codeco"
 
       - run: npm version patch
         env:
