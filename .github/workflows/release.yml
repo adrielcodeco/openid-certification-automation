@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@master
         with:
-          persist-credentials: false
+          persist-credentials: true
 
       - name: Set up Node.js
         uses: actions/setup-node@master
@@ -85,17 +85,6 @@ jobs:
           tags: |
             adrielcodeco/openidtest:latest
             adrielcodeco/openidtest:${{ steps.date.outputs.date }}
-
-      - name: Build and push Docker image (conformance-suite)
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: Dockerfile.conformance-suite
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: |
-            adrielcodeco/conformance-suite:latest
-            adrielcodeco/conformance-suite:${{ steps.date.outputs.date }}
 
       - run: npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
 
