@@ -27,6 +27,12 @@ module.exports = async function ({
   if (testEngineUrl) {
     config.currentTestEngineUrl = testEngineUrl
   }
+  if (!config.currentTestEngineUrl) {
+    throw (
+      'No test engine URL has been specified.\n' +
+      'Pass --testEngineUrl parameter or configure the default behavior by calling the "openidtest use" command'
+    )
+  }
   if (allTestPlans) {
     config.currentTestPlans = config.getTestPlansKeys(config.currentTestEngineUrl)
   } else if (testPlans != null) {

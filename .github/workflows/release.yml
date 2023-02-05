@@ -103,6 +103,4 @@ jobs:
 
       - name: git push
         run: |
-          git add package.json
-          git commit -m "bump version [skip ci]"
           git push -u origin HEAD:main

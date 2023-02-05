@@ -24,11 +24,7 @@ services:
       - ./.tmp/mongo/data:/data/db
 
   conformance-suite:
-    build:
-      context: Dockerfile.conformance-suite
-      cache_from:
-        - ${DOCKER_CACHE:-tmp}
-    image: conformance-suite:latest
+    image: adrielcodeco/conformance-suite:latest
     container_name: conformance-suite
     ports:
       - '8443:8443'

@@ -35,7 +35,7 @@ for (const testPlan of config.currentTestPlans) {
           await I.amOnPage(`/plan-detail.html?plan=${config.getTestPlan(testPlan).lastPlanId}`)
           await I.waitLoadingModal()
           const currentTests = await I.getTestsList()
-          expect(tests).to.eql(currentTests)
+          expect(tests.sort()).to.eql(currentTests.sort())
         } catch (err) {
           logger.error('%O', err)
           throw err

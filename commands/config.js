@@ -8,7 +8,7 @@ const commandExistsSync = require('command-exists').sync
 
 module.exports = async function () {
   const purposeQuestion = {
-    type: 'text',
+    type: 'autocomplete',
     name: 'purpose',
     message: 'What is your purpose ?',
     initial: 'edit',
