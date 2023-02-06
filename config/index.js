@@ -134,13 +134,6 @@ class TestPlanConfig {
     nconf.set(`plans:${this.#testEngineUrl}:${this.#testPlan}:scripts:happyPath`, value)
   }
 
-  get wrongRedirectScript() {
-    return nconf.get(`plans:${this.#testEngineUrl}:${this.#testPlan}:scripts:wrongRedirect`)
-  }
-  set wrongRedirectScript(value) {
-    nconf.set(`plans:${this.#testEngineUrl}:${this.#testPlan}:scripts:wrongRedirect`, value)
-  }
-
   get userRejectScript() {
     return nconf.get(`plans:${this.#testEngineUrl}:${this.#testPlan}:scripts:userReject`)
   }

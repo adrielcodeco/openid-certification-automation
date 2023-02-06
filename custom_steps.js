@@ -3,6 +3,7 @@ const timer = require('./lib/timer')
 const { expect } = require('chai')
 const config = require('./config')
 const { getSession } = require('./lib/testSession')
+const logger = require('./lib/logger')
 
 module.exports = function () {
   return actor({
@@ -120,12 +121,6 @@ module.exports = function () {
       await happyPathScript({ I: this, expect, timer })
     },
 
-    useWrongRedirect: async function () {
-      const plan = config.getTestPlan(getSession('testPlan'))
-      const wrongRedirectScript = require(path.resolve(process.cwd(), plan.wrongRedirectScript))
-      await wrongRedirectScript({ I: this, expect, timer })
-    },
-
     useUserReject: async function () {
       const plan = config.getTestPlan(getSession('testPlan'))
       const userRejectScript = require(path.resolve(process.cwd(), plan.userRejectScript))
@@ -141,6 +136,8 @@ module.exports = function () {
       await this.openAuthorizer()
       try {
         await this.useHappyPath()
+      } catch (err) {
+        logger.error(err)
       } finally {
         await this.closeAuthorizer()
       }
@@ -154,6 +151,8 @@ module.exports = function () {
       await this.openAuthorizer()
       try {
         await this.useHappyPath()
+      } catch (err) {
+        logger.error(err)
       } finally {
         await this.closeAuthorizer()
       }
@@ -162,6 +161,8 @@ module.exports = function () {
       await this.openAuthorizer()
       try {
         await this.useHappyPath()
+      } catch (err) {
+        logger.error(err)
       } finally {
         await this.closeAuthorizer()
       }
@@ -173,11 +174,7 @@ module.exports = function () {
 
     withWrongRedirect: async function () {
       await this.openAuthorizer()
-      try {
-        await this.useWrongRedirect()
-      } finally {
-        await this.closeAuthorizer()
-      }
+      await this.closeAuthorizer()
       await this.checkFailures()
 
       await this.waitForEnd()
@@ -188,6 +185,8 @@ module.exports = function () {
       await this.openAuthorizer()
       try {
         await this.useUserReject()
+      } catch (err) {
+        logger.error(err)
       } finally {
         await this.closeAuthorizer()
       }
@@ -196,6 +195,8 @@ module.exports = function () {
       await this.openAuthorizer()
       try {
         await this.useUserReject()
+      } catch (err) {
+        logger.error(err)
       } finally {
         await this.closeAuthorizer()
       }
@@ -209,17 +210,15 @@ module.exports = function () {
       await this.openAuthorizer()
       try {
         await this.useHappyPath()
+      } catch (err) {
+        logger.error(err)
       } finally {
         await this.closeAuthorizer()
       }
       await this.checkFailures()
 
       await this.openAuthorizer()
-      try {
-        await this.useWrongRedirect()
-      } finally {
-        await this.closeAuthorizer()
-      }
+      await this.closeAuthorizer()
       await this.checkFailures()
 
       await this.waitForEnd()

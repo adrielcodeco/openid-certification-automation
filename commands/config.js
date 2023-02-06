@@ -224,13 +224,6 @@ module.exports = async function () {
     initial: (prev, values, prompt) =>
       config.getTestPlan(values.testPlan, values.testEngineUrl).happyPathScript,
   }
-  const wrongRedirectScriptPathQuestion = {
-    type: 'text',
-    name: 'wrongRedirectScriptPath',
-    message: 'What is the path of the WrongRedirect script ?',
-    initial: (prev, values, prompt) =>
-      config.getTestPlan(values.testPlan, values.testEngineUrl).wrongRedirectScript,
-  }
   const userRejectScriptPathQuestion = {
     type: 'text',
     name: 'userRejectScriptPath',
@@ -248,7 +241,6 @@ module.exports = async function () {
     fapiResponseModeQuestion,
     configJSONQuestion,
     happyPathScriptPathQuestion,
-    wrongRedirectScriptPathQuestion,
     userRejectScriptPathQuestion,
   ]
   const answers = await prompts(questions, {
@@ -269,7 +261,6 @@ module.exports = async function () {
   testPlan.fapiResponseMode = answers.fapiResponseMode
   testPlan.configJSON = answers.configJSON
   testPlan.happyPathScript = answers.happyPathScriptPath
-  testPlan.wrongRedirectScript = answers.wrongRedirectScriptPath
   testPlan.userRejectScript = answers.userRejectScriptPath
 
   await config.save()
