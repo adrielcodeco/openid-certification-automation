@@ -4,6 +4,7 @@ const { expect } = require('chai')
 const config = require('./config')
 const { getSession } = require('./lib/testSession')
 const logger = require('./lib/logger')
+const plans = require('./dto/plans')
 
 module.exports = function () {
   return actor({
