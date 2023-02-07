@@ -24,4 +24,4 @@ COPY test.js            test.js
 
 RUN chmod +x cli
 
-CMD ./cli run --all -n
+CMD ./cli run --all --np
