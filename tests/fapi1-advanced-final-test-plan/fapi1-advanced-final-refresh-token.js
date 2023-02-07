@@ -1,3 +1,3 @@
 module.exports = async function (I) {
-  await I.withTwoHappyPath()
+  await I.withSomeHappyPath(2)
 }

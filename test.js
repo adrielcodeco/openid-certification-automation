@@ -14,8 +14,10 @@ event.dispatcher.on(event.step.failed, function onFailure(step, error) {
 })
 
 for (const testPlan of config.currentTestPlans) {
+  const tests = config.getTests(testPlan)
   sessionContext(() => {
     setSession('testPlan', testPlan)
+
     Feature(EOL + testPlan)
 
     Scenario('000/000 ** Test plan configuration **', async ({ I }) => {
@@ -27,7 +29,7 @@ for (const testPlan of config.currentTestPlans) {
           if (currentUrl.includes('/login.html')) {
             throw 'login page not expected!'
           }
-          if (config.newPlanId) {
+          if (config.newPlanId || !config.getTestPlan(testPlan).lastPlanId) {
             await I.createNewTestPlan()
           } else {
           }
@@ -48,13 +50,17 @@ for (const testPlan of config.currentTestPlans) {
     if (!allTests) {
       currentTests = currentTests.filter(t => t !== '*')
     }
-    const tests = config.getTests(testPlan)
+    const skippedTests = config.getTestPlan(testPlan).skipTests
     const _tests = allTests ? tests : tests.filter(t => currentTests.includes(t))
     for (const testName of _tests) {
       const index = String(tests.indexOf(testName) + 1).padStart(3, '0')
       const total = String(tests.length).padStart(3, '0')
       Scenario(`${index}/${total} ** ${testName} **`, async function ({ I }) {
-        await sessionContext(async () => {
+        if (skippedTests?.includes(testName)) {
+          await this.skip()
+          return
+        }
+        const result = await sessionContext(async () => {
           setSession('testPlan', testPlan)
           try {
             let currentUrl = await I.grabCurrentUrl()
@@ -69,7 +75,7 @@ for (const testPlan of config.currentTestPlans) {
             const logItemElement = locate(
               `.//*[contains(concat(' ', normalize-space(./@class), ' '), ' logItem ')][./descendant::div[count(preceding-sibling::*) = 2]/div[count(preceding-sibling::*) = 0]/div[.='${testName}']]`,
             )
-            await I.seeElement(logItemElement)
+            await I.seeElement(logItemElement.as('logItemElement'))
             await I.waitForElement(
               logItemElement
                 .find('.testStatusAndResult .testStatusResultBlock')
@@ -81,19 +87,32 @@ for (const testPlan of config.currentTestPlans) {
                 logItemElement
                   .find('.testStatusAndResult > .testResult-passed')
                   .or(logItemElement.find('.testStatusAndResult > .testResult-warning'))
-                  .as('.testResult-passed OR .testResult-warning'),
+                  .or(logItemElement.find('.testStatusAndResult > .testResult-review'))
+                  .as('.testResult-passed OR .testResult-warning OR .testResult-review'),
               ),
             )
             if (passed) {
               return
             }
+            const skipped = await tryTo(() =>
+              I.seeElement(
+                logItemElement
+                  .find('.testStatusAndResult > .testResult-skipped')
+                  .as('.testResult-skipped'),
+              ),
+            )
+            if (skipped) {
+              return { skip: true }
+            }
             const btnSelector = `#planItems .logItem .startBtn[data-module="${testName}"]`
             await I.retry(3).waitForElement(btnSelector, 2)
             await I.forceClick(btnSelector)
-            await I.waitForNavigation()
             await I.waitInUrl('/log-detail.html')
             await I.waitLoadingModal()
             await I.checkFailures()
+            if (await I.checkSkipped()) {
+              return { skip: true }
+            }
             const test = requireOrExit(testPlan, testName)
             await test(I)
           } catch (err) {
@@ -101,6 +120,10 @@ for (const testPlan of config.currentTestPlans) {
             throw err
           }
         })
+
+        if (result?.skip) {
+          this.skip()
+        }
       })
     }
   })

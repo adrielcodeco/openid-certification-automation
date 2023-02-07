@@ -8,12 +8,14 @@ const logger = require('./lib/logger')
 module.exports = function () {
   return actor({
     createNewTestPlan: async function () {
+      const currentTestPlan = getSession('testPlan')
+      const plan = plans.find(({ value }) => value === currentTestPlan)
       await this.amOnPage('/index.html')
       await this.waitForElement('#homePage a[href="schedule-test.html"]', timer.s('2m'))
       await this.click('#homePage a[href="schedule-test.html"]')
       await this.waitLoadingModal()
-      await this.selectOption('#planSelect', getSession('testPlan'))
-      const testPlan = config.getTestPlan(getSession('testPlan'))
+      await this.selectOption('#planSelect', plan.key ?? plan.value)
+      const testPlan = config.getTestPlan(currentTestPlan)
       await this.selectOption('#vp_client_auth_type', testPlan.clientAuthenticationType)
       await this.selectOption('#vp_fapi_auth_request_method', testPlan.requestObjectMethod)
       await this.selectOption('#vp_fapi_profile', testPlan.fapiProfile)
@@ -34,7 +36,7 @@ module.exports = function () {
       await this.waitLoadingModal()
       let currentUrl = await this.grabCurrentUrl()
       const planId = new URL(currentUrl).searchParams.get('plan')
-      config.getTestPlan(getSession('testPlan')).lastPlanId = planId
+      config.getTestPlan(currentTestPlan).lastPlanId = planId
       await config.save()
     },
 
@@ -58,21 +60,24 @@ module.exports = function () {
       )
     },
 
-    openAuthorizer: async function () {
-      await this.waitForVisible('#runningTestBrowser .visitBtn', timer.s('60s'))
-      // let authorizerUrl
-      // await retryTo(async tryNum => {
-      //   authorizerUrl = await this.grabAttributeFrom('#runningTestBrowser .visitBtn', 'data-url')
-      //   expect(authorizerUrl).to.not.be.empty
-      // }, 3)
-      // await this.executeScript(function () {
-      //   document.querySelector('#runningTestBrowser .visitBtn').remove()
-      // })
-      // await this.openNewTab()
-      // await this.amOnPage(authorizerUrl)
+    checkSkipped: async function () {
+      let text = await this.grabTextFromAll('#testStatusAndResult .testStatusResultBlock')
+      text = Array.isArray(text) ? text.join(' ') : text
+      if (text.includes('CREATED')) {
+        await this.wait(1)
+      }
+      text = await this.grabTextFromAll('#testStatusAndResult .testStatusResultBlock')
+      text = Array.isArray(text) ? text.join(' ') : text
+      let skipped = text.includes('FINISHED') && text.includes('SKIPPED')
+      return skipped
+    },
 
+    openAuthorizer: async function () {
+      await this.waitForElement('#runningTestBrowser .visitBtn', timer.s('60s'))
       const currentPageIndex = await this.getCurrentPageIndex()
+      await this.scrollTo('#runningTestBrowser .visitBtn')
       await this.click('#runningTestBrowser .visitBtn')
+      await this.scrollPageToTop()
       let newPageIndex = await this.getOpenedPageIndex()
       if (currentPageIndex < newPageIndex) {
         await this.switchToNextTab(newPageIndex - currentPageIndex)
@@ -100,7 +105,11 @@ module.exports = function () {
         locate('#testStatusAndResult .testResult-passed')
           .or(locate('#testStatusAndResult .testResult-warning'))
           .or(locate('#testStatusAndResult .testResult-failed'))
-          .as('.testResult-passed OR .testResult-warning OR .testResult-failed'),
+          .or(locate('#testStatusAndResult .testResult-skipped'))
+          .or(locate('#testStatusAndResult .testResult-review'))
+          .as(
+            '.testResult-passed OR .testResult-warning OR .testResult-failed OR .testResult-skipped OR .testResult-review',
+          ),
         timer.s('5m'),
       )
     },
@@ -127,6 +136,48 @@ module.exports = function () {
       await userRejectScript({ I: this, expect, timer })
     },
 
+    takeScreenshot: async function () {
+      await this.saveScreenshot(`authorizer.png`)
+    },
+
+    _uploadScreenshotUploadBtnClick: async function () {
+      await this.waitForElement('#imageBlocks button.btn.uploadBtn.btn-success')
+      await this.click('#imageBlocks button.btn.uploadBtn.btn-success')
+      await this.waitForElement('.bg-success.testStatusResultBlock')
+    },
+
+    uploadScreenshot: async function () {
+      await this.waitForElement('#logHeader #uploadBtn')
+      const currentPageIndex = await this.getCurrentPageIndex()
+      await this.click('#logHeader #uploadBtn')
+      let newPageIndex = await this.getOpenedPageIndex()
+      if (currentPageIndex < newPageIndex) {
+        await this.switchToNextTab(newPageIndex - currentPageIndex)
+      } else {
+        await this.switchToPreviousTab(currentPageIndex - newPageIndex)
+      }
+      await this.waitForElement('#imageBlocks label.btn.btn-default')
+      await this.click('#imageBlocks label.btn.btn-default')
+      await this.attachFile(
+        "#imageBlocks label.btn.btn-default input[type='file']",
+        `.out/obb-certification-automation/authorizer.png`,
+      )
+      await this.retry(3).waitForFunction(
+        () =>
+          !/images\/placeholder\.png/.test(
+            document.querySelector('.img-responsive.center-block.imagePreview.imagePasteTarget')
+              .src,
+          ),
+        2,
+      )
+      await this.retry(3)._uploadScreenshotUploadBtnClick()
+      await this.waitForElement('#testInfo .btn.btn-default.btn-block')
+      await this.click('#testInfo .btn.btn-default.btn-block')
+      await this.waitLoadingModal()
+      await this.closeCurrentTab()
+      await this.switchTo()
+    },
+
     withoutInteraction: async function () {
       await this.waitForEnd()
       await this.checkFailures()
@@ -147,26 +198,22 @@ module.exports = function () {
       await this.checkFailures()
     },
 
-    withTwoHappyPath: async function () {
-      await this.openAuthorizer()
-      try {
-        await this.useHappyPath()
-      } catch (err) {
-        logger.error(err)
-      } finally {
-        await this.closeAuthorizer()
+    withSomeHappyPath: async function (count, uploadPng = false) {
+      for (let i = 0; i < count; i++) {
+        await this.openAuthorizer()
+        try {
+          await this.useHappyPath()
+        } catch (err) {
+          logger.error(err)
+        } finally {
+          await this.closeAuthorizer()
+        }
+        await this.checkFailures()
       }
-      await this.checkFailures()
 
-      await this.openAuthorizer()
-      try {
-        await this.useHappyPath()
-      } catch (err) {
-        logger.error(err)
-      } finally {
-        await this.closeAuthorizer()
+      if (uploadPng) {
+        await this.uploadScreenshot()
       }
-      await this.checkFailures()
 
       await this.waitForEnd()
       await this.checkFailures()
@@ -181,26 +228,18 @@ module.exports = function () {
       await this.checkFailures()
     },
 
-    withTwoRejects: async function () {
-      await this.openAuthorizer()
-      try {
-        await this.useUserReject()
-      } catch (err) {
-        logger.error(err)
-      } finally {
-        await this.closeAuthorizer()
+    withSomeRejects: async function (count) {
+      for (let i = 0; i < count; i++) {
+        await this.openAuthorizer()
+        try {
+          await this.useUserReject()
+        } catch (err) {
+          logger.error(err)
+        } finally {
+          await this.closeAuthorizer()
+        }
+        await this.checkFailures()
       }
-      await this.checkFailures()
-
-      await this.openAuthorizer()
-      try {
-        await this.useUserReject()
-      } catch (err) {
-        logger.error(err)
-      } finally {
-        await this.closeAuthorizer()
-      }
-      await this.checkFailures()
 
       await this.waitForEnd()
       await this.checkFailures()

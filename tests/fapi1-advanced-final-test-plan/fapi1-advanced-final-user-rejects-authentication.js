@@ -1,3 +1,3 @@
 module.exports = async function (I) {
-  await I.withTwoRejects()
+  await I.withSomeRejects(2)
 }
