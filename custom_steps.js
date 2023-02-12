@@ -79,7 +79,7 @@ module.exports = function () {
       await this.scrollTo('#runningTestBrowser .visitBtn')
       await this.click('#runningTestBrowser .visitBtn')
       await this.scrollPageToTop()
-      let newPageIndex = await this.getOpenedPageIndex()
+      let newPageIndex = await this.retry(2).getOpenedPageIndex()
       if (currentPageIndex < newPageIndex) {
         await this.switchToNextTab(newPageIndex - currentPageIndex)
       } else {
@@ -151,7 +151,7 @@ module.exports = function () {
       await this.waitForElement('#logHeader #uploadBtn')
       const currentPageIndex = await this.getCurrentPageIndex()
       await this.click('#logHeader #uploadBtn')
-      let newPageIndex = await this.getOpenedPageIndex()
+      let newPageIndex = await this.retry(2).getOpenedPageIndex()
       if (currentPageIndex < newPageIndex) {
         await this.switchToNextTab(newPageIndex - currentPageIndex)
       } else {
