@@ -1,6 +1,6 @@
 {
   "name": "openid-certification-automation",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "bin": {
     "openidtest": "cli.js"
   },
