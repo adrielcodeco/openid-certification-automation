@@ -82,9 +82,14 @@ module.exports = function () {
       await this.wait(1)
       let newPageIndex = await this.getOpenedPageIndex()
       if (newPageIndex == null) {
+        await this.wait(1)
+        newPageIndex = await this.getOpenedPageIndex()
+      }
+      if (newPageIndex == null) {
         await this.scrollTo('#runningTestBrowser .visitBtn')
         await this.click('#runningTestBrowser .visitBtn')
         await this.scrollPageToTop()
+        await this.wait(1)
         newPageIndex = await this.getOpenedPageIndex()
       }
       if (currentPageIndex < newPageIndex) {
@@ -126,11 +131,13 @@ module.exports = function () {
 
     checkFailures: async function () {
       let failures = await this.grabTextFrom('.result-failure span')
+      logger.trace('failures: %d', failures)
       expect(failures).to.equal('0')
     },
 
     checkUrl: async function (regex) {
       const url = await this.grabCurrentUrl()
+      logger.trace('url expected: %s, got: %s', String(regex), String(url))
       expect(url).to.match(regex)
     },
 

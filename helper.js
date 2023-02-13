@@ -28,12 +28,12 @@ class CustomHelper extends Helper {
       }
       const index = pages.indexOf(page)
       logger.trace('Opened Page Index: %d', index)
-      return index
+      return index < 0 ? undefined : index
     }
     const newPage = await newTarget.page()
     const index = pages.indexOf(newPage)
     logger.trace('Opened Page Index: %d', index)
-    return index
+    return index < 0 ? undefined : index
   }
 }
 
