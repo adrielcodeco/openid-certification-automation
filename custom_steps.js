@@ -87,7 +87,7 @@ module.exports = function () {
         newPageIndex = await this.getOpenedPageIndex()
       }
       if (currentPageIndex === newPageIndex) {
-        this.switchToNextTab()
+        await this.switchToNextTab()
       } else {
         if (currentPageIndex < newPageIndex) {
           await this.switchToNextTab(newPageIndex - currentPageIndex)
@@ -168,7 +168,7 @@ module.exports = function () {
         newPageIndex = await this.getOpenedPageIndex()
       }
       if (currentPageIndex === newPageIndex) {
-        this.switchToNextTab()
+        await this.switchToNextTab()
       } else {
         if (currentPageIndex < newPageIndex) {
           await this.switchToNextTab(newPageIndex - currentPageIndex)

@@ -13,12 +13,11 @@ class CustomHelper extends Helper {
     const { page, browser } = this.helpers.Puppeteer
     const pageTarget = page.target()
     const pages = await browser.pages()
-    let newTarget
-    const result = await tryTo(async () => {
-      newTarget = await browser.waitForTarget(target => target.opener() === pageTarget, {
+    let newTarget = await browser
+      .waitForTarget(target => target.opener() === pageTarget, {
         timeout: timer.m('3s'),
       })
-    })
+      .catch(() => undefined)
     if (!result) {
       logger.trace('target not found!')
       logger.trace('Opened tabs: %s', pages.length)
