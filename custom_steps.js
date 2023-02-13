@@ -86,14 +86,12 @@ module.exports = function () {
         await this.scrollPageToTop()
         newPageIndex = await this.getOpenedPageIndex()
       }
-      if (currentPageIndex === newPageIndex) {
-        await this.switchToNextTab()
+      if (currentPageIndex < newPageIndex) {
+        await this.switchToNextTab(newPageIndex - currentPageIndex)
+      } else if (currentPageIndex > newPageIndex) {
+        await this.switchToPreviousTab(currentPageIndex - newPageIndex)
       } else {
-        if (currentPageIndex < newPageIndex) {
-          await this.switchToNextTab(newPageIndex - currentPageIndex)
-        } else {
-          await this.switchToPreviousTab(currentPageIndex - newPageIndex)
-        }
+        await this.switchToNextTab()
       }
     },
 
@@ -167,14 +165,12 @@ module.exports = function () {
         await this.click('#logHeader #uploadBtn')
         newPageIndex = await this.getOpenedPageIndex()
       }
-      if (currentPageIndex === newPageIndex) {
-        await this.switchToNextTab()
+      if (currentPageIndex < newPageIndex) {
+        await this.switchToNextTab(newPageIndex - currentPageIndex)
+      } else if (currentPageIndex > newPageIndex) {
+        await this.switchToPreviousTab(currentPageIndex - newPageIndex)
       } else {
-        if (currentPageIndex < newPageIndex) {
-          await this.switchToNextTab(newPageIndex - currentPageIndex)
-        } else {
-          await this.switchToPreviousTab(currentPageIndex - newPageIndex)
-        }
+        await this.switchToNextTab()
       }
       await this.waitForElement('#imageBlocks label.btn.btn-default')
       await this.click('#imageBlocks label.btn.btn-default')

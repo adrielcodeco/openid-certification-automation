@@ -6,7 +6,9 @@ class CustomHelper extends Helper {
   async getCurrentPageIndex() {
     const { page, browser } = this.helpers.Puppeteer
     const pages = await browser.pages()
-    return pages.indexOf(page)
+    const index = pages.indexOf(page)
+    logger.trace('Current Page Index: %d', index)
+    return index
   }
 
   async getOpenedPageIndex() {
@@ -20,14 +22,18 @@ class CustomHelper extends Helper {
       .catch(() => undefined)
     if (!newTarget) {
       logger.trace('target not found!')
-      logger.trace('Opened tabs: %s', pages.length)
+      logger.trace('Opened tabs: %d', pages.length)
       if (pages.length < 2) {
         return undefined
       }
-      return pages.indexOf(page)
+      const index = pages.indexOf(page)
+      logger.trace('Opened Page Index: %d', index)
+      return index
     }
     const newPage = await newTarget.page()
-    return pages.indexOf(newPage)
+    const index = pages.indexOf(newPage)
+    logger.trace('Opened Page Index: %d', index)
+    return index
   }
 }
 
