@@ -18,7 +18,7 @@ class CustomHelper extends Helper {
         timeout: timer.m('3s'),
       })
       .catch(() => undefined)
-    if (!result) {
+    if (!newTarget) {
       logger.trace('target not found!')
       logger.trace('Opened tabs: %s', pages.length)
       if (pages.length < 2) {
