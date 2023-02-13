@@ -79,6 +79,7 @@ module.exports = function () {
       await this.scrollTo('#runningTestBrowser .visitBtn')
       await this.click('#runningTestBrowser .visitBtn')
       await this.scrollPageToTop()
+      await this.wait(1)
       let newPageIndex = await this.getOpenedPageIndex()
       if (newPageIndex == null) {
         await this.scrollTo('#runningTestBrowser .visitBtn')
@@ -159,6 +160,7 @@ module.exports = function () {
       await this.waitForElement('#logHeader #uploadBtn')
       const currentPageIndex = await this.getCurrentPageIndex()
       await this.click('#logHeader #uploadBtn')
+      await this.wait(1)
       let newPageIndex = await this.getOpenedPageIndex()
       if (newPageIndex == null) {
         await this.waitForElement('#logHeader #uploadBtn')
